@@ -10,12 +10,13 @@ The goal of this repository is to compile an Arduino sketch (or maybe Raspberry 
 - Disable lights that aren't needed
 
 # Gauge list
-| Gauge | Input | Output | Notes |
-| Speedometer | Accord CANBus TBD | VSS Pulsed output from Arduino | n/a |
-| Tachometer  | Accord CANBus | VW CanBus from Arduino | n/a |
-| Temp Gauge  | Accord CANBus | Some kind of variable resistor setup TBD | n/a |
-| Coolant Level | n/a | Blue connector PIN 22 Jumper to ground | n/a |
-| Oil Level | C251 Pin 9 Yel/Red | Blue connector PIN 10 | n/a |
+| Gauge | Input | Output |
+| ----------- | ----------------- | ------------------------------ |
+| Speedometer | Accord CANBus TBD | VSS Pulsed output from Arduino |
+| Tachometer  | Accord CANBus | VW CanBus from Arduino |
+| Temp Gauge  | Accord CANBus | Some kind of variable resistor setup TBD |
+| Coolant Level | n/a | Blue connector PIN 22 Jumper to ground |
+| Oil Level | Accord C251 Pin 9 Yel/Red | Blue connector PIN 10 |
 
 ## Speedometer
 I need a better equation to convert speed to a reading on the gauge cluster
