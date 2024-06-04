@@ -9,9 +9,12 @@ Coolant Temp
 390 ohm - Tiniest smidge of movement
 
 Oil Pressure
+If  I send tach can this flashes sometimes?
 Off - Open
 On  - Ground
 
 Coolant Level
 Off - Ground
 On - Open
+
+Use LM2940-10 with decoupling caps per datasheet to power Arduino in automotive setting

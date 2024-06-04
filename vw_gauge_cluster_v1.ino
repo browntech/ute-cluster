@@ -7,6 +7,8 @@
 // https://github.com/coryjfowler/MCP_CAN_lib/blob/master/examples/CAN_send/CAN_send.ino#L17
 #include <SPI.h>                //CAN Bus Shield SPI Pin Library
 #include "mcp_can.h"
+// Speed Map because I'm bad at math
+#include "speedmap.h"
 
 // CANBus Pin setup
 #define CAN0_INT 2                              // Set INT to pin 2
@@ -19,43 +21,9 @@ unsigned long durationLow=0; //duration of the pulse in Low zone (0v)
 unsigned long period=0;
 unsigned long duty=0;
 int pack_counter = 0;
-long speedMap[] = {
-  0,      // 0
-  260000, // 1
-  141000, // 5
-  63000, // 10
-  42000, // 15
-  31000, // 20
-  24500, // 25
-  20500, // 30
-  17500, // 35
-  15500, // 40
-  14000, // 45
-  13000, // 50
-  11000, // 60
-  9400,  // 70
-  8100,  // 80
-  7500,  // 85
-  7200,  // 90
-  6800,  // 95
-  6500,  // 100
-  6200,  // 105
-  5900,  // 110
-  5660,  // 115
-  5430,  // 120
-  5220,  // 125
-  5010,  // 130
-  4830,  // 135
-  4650,  // 140
-  4500,  // 145
-  4350,  // 150
-  4220,  // 155
-  4080   // 160
-};
 int speedSize = 5;
 unsigned long pulseDelay = 0;
 //ToDo:
-// Build out complete speed map above
 // Figure out how to actuate temp gauge
 // Figure out how to read speed
 // Figure out how to read RPM
@@ -83,16 +51,17 @@ void setup(){
 
   CAN.setMode(MCP_NORMAL);   // Change to normal mode to allow messages to be transmitted
 
-  //Immobilizer
-  canSend(0x3D0, 0, 0x80, 0, 0, 0, 0, 0, 0);
+  // //Immobilizer
+  // canSend(0x3D0, 0, 0x80, 0, 0, 0, 0, 0, 0);
   
-  //Engine on and ESP enabled
-  canSend(0xDA0, 0x01, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+  // //Engine on and ESP enabled
+  // canSend(0xDA0, 0x01, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
 
-  //Airbag
-  canSend(0x050, 0, 0x80, 0, 0, 0, 0, 0, 0);
+  // //Airbag
+  // canSend(0x050, 0, 0x80, 0, 0, 0, 0, 0, 0);
 
   // Verify gauge operation
+  delay(1000);
   wipeGauges();
 }
 
@@ -102,24 +71,31 @@ void canSend(short address, byte a, byte b, byte c, byte d, byte e, byte f, byte
   CAN.sendMsgBuf(address, 0, 8, DataToSend);      //sending the buffer using the given adress
 }
 
-void wipeGauges() {
-  // Set Speedometer to highest value
-  Timer1.pwm(vssOut, (55.0 / 100) * 1023,speedMap[30]);
-  
-  // Set RPM to highest value
-  tempRPM = 7500*4;
+void setSpeed(int speed) {
+  Timer1.pwm(vssOut, 512, speedMap[speed]);
+}
+
+void setRPM( int rpm ) {
+  tempRPM = rpm*4;
   rpmL = lo8(tempRPM);
   rpmH = hi8(tempRPM);
+  canSend(0x280, 0x49, 0x0E, rpmL, rpmH, 0x0E, 0x00, 0x1B, 0x0E);
+}
 
-  for (int i = 0; i < 1500; i++) {
-    canSend(0x280, 0x49, 0x0E, rpmL, rpmH, 0x0E, 0x00, 0x1B, 0x0E);
+void wipeGauges() {
+  Serial.println("Starting wipe gauges");
+  // Set Speedometer to highest value
+  setSpeed(160);
+
+  // Set RPM to highest value
+  for (int i = 0; i < 800; i++) {
+    setRPM(7700);
     delay(2);
   }
+  delay(200); // Adjust this so your needles return at the same time.
 
-  // Wait while needles up
-  // delay(3000);
-  // Return to 0
-  Timer1.pwm(vssOut,0,0);
+  setSpeed(0);
+  Serial.println("Finished wipe gauges");
 
   return;
 }
@@ -133,19 +109,6 @@ void updateGauges() {
 }
  
 void loop(){
-  // Startup 
-  
-  // Set RPM gauge to highest value
-  tempRPM = 927*4;
-  rpmL = lo8(tempRPM);
-  rpmH = hi8(tempRPM);
-  // canSend(0x280, 0x49, 0x0E, rpmL, rpmH, 0x0E, 0x00, 0x1B, 0x0E);
-
-
-  // updateGauges();
-  // tempRPM = rpm*4;
-  // rpmL = lo8(tempRPM);
-  // rpmH = hi8(tempRPM);
-  // //RPM
-  // CanSend(0x280, 0x49, 0x0E, rpmL, rpmH, 0x0E, 0x00, 0x1B, 0x0E);
+  setSpeed(0);
+  setRPM(3523);
 }
