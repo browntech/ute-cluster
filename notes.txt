@@ -1,0 +1,17 @@
+Gas Gauge
+40 ohm - Empty
+190 ohm - Slightly below half tank
+360 ohm - Slightly below full
+
+Coolant Temp
+40 ohm - Max Hot
+190 ohm - Slightly above half temp
+390 ohm - Tiniest smidge of movement
+
+Oil Pressure
+Off - Open
+On  - Ground
+
+Coolant Level
+Off - Ground
+On - Open
