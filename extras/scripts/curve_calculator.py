@@ -1,3 +1,7 @@
+# Thanks ChatGPT
+# I used this script to calculate the curve and the frequencies for each
+# speed between 1 and 160.  It got a little weird at the end
+# but I corrected for this in the speedmap.h file.
 import numpy as np
 import matplotlib.pyplot as plt
 
