@@ -1,7 +1,3 @@
-//Modifed from VSS converter from civic eg vss to s2000 cluster
-//Version 1.0
-//read.the.disclaimer@gmail.com
-
 #include <TimerOne.h> // This library will allow us to use pwm signals with custom period
 // Required for CANBus
 // https://github.com/coryjfowler/MCP_CAN_lib/blob/master/examples/CAN_send/CAN_send.ino#L17
@@ -15,12 +11,9 @@
 MCP_CAN CAN(10);                                // Set CS pin
 
 int vssOut = 9;
+int oilpswitch = 8;
 double scale=0;
-unsigned long durationHigh=0; //duration of the pulse in High zone (5v)
-unsigned long durationLow=0; //duration of the pulse in Low zone (0v)
-unsigned long period=0;
-unsigned long duty=0;
-int pack_counter = 0;
+int packCounter = 0;
 int speedSize = 5;
 unsigned long pulseDelay = 0;
 //ToDo:
@@ -29,8 +22,6 @@ unsigned long pulseDelay = 0;
 // Figure out how to read RPM
 // Figure out how to read temp
 // Figure out how to turn on and off low oil light
-// Figure out how to increment odometer
-
 
 // RPM Vars
 //Definition
@@ -51,15 +42,6 @@ void setup(){
 
   CAN.setMode(MCP_NORMAL);   // Change to normal mode to allow messages to be transmitted
 
-  // //Immobilizer
-  // canSend(0x3D0, 0, 0x80, 0, 0, 0, 0, 0, 0);
-  
-  // //Engine on and ESP enabled
-  // canSend(0xDA0, 0x01, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-
-  // //Airbag
-  // canSend(0x050, 0, 0x80, 0, 0, 0, 0, 0, 0);
-
   // Verify gauge operation
   delay(1000);
   wipeGauges();
@@ -72,7 +54,12 @@ void canSend(short address, byte a, byte b, byte c, byte d, byte e, byte f, byte
 }
 
 void setSpeed(int speed) {
-  Timer1.pwm(vssOut, 512, speedMap[speed]);
+  if (speed >= 0 || speed <= 160 ) {
+    Timer1.pwm(vssOut, 512, speedMap[speed]);
+  }
+  else {
+    Timer1.pwm(vssOut, 512, speedMap[0]);
+  }
 }
 
 void setRPM( int rpm ) {
@@ -109,6 +96,16 @@ void updateGauges() {
 }
  
 void loop(){
-  setSpeed(0);
-  setRPM(3523);
+  rpm = 1800;
+  setSpeed(161);
+  setRPM(rpm);
+
+  //Set Oil Pressure Switch
+  if (rpm > 1500) {
+    digitalWrite(oilpswitch, LOW);
+  }
+  else {
+    digitalWrite(oilpswitch, HIGH);
+  }
+
 }
